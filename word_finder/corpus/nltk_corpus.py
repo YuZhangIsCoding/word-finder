@@ -1,9 +1,10 @@
+from pathlib import Path
+from typing import List, Union
+
 import nltk
 from nltk.corpus import words
-from typing import Union, List
-from pathlib import Path
-from word_finder.log import get_logger
 
+from word_finder.log import get_logger
 
 LOGGER = get_logger(__name__)
 
