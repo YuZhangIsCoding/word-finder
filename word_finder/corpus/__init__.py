@@ -1,3 +1,3 @@
-from . import nltk_corpse
+from . import nltk_corpus
 
-__all__ = ["nltk_corpse"]
+__all__ = ["nltk_corpus"]
