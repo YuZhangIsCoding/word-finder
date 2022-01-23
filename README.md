@@ -18,7 +18,7 @@ Options:
   --exact               Match the pattern exactly
   -l, --length INTEGER  The length of the word
   --limit INTEGER       Limit the number of the output words
-  -c, --corpse TEXT     Choose the corpse from ['nltk_corpse']
+  -c, --corpus TEXT     Choose the corpus from ['nltk_corpus']
   --cache PATH          Cache location
   --help                Show this message and exit.
 ```

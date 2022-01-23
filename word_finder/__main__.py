@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import click
-import word_finder.corpse as corpse_module
+import word_finder.corpus as corpus_module
 from typing import Iterable, Iterator, Callable
 from collections import Counter
 from word_finder.log import get_logger
@@ -60,12 +60,12 @@ def search(exact) -> Callable[[Iterator[str], str, int], Iterator[str]]:
 @click.option("-l", "--length", type=int, default=5, help="The length of the word")
 @click.option("--limit", type=int, default=5, help="Limit the number of the output words")
 @click.option(
-    "-c", "--corpse",
-    type=str, default="nltk_corpse", help=f"Choose the corpse from {corpse_module.__all__}"
+    "-c", "--corpus",
+    type=str, default="nltk_corpus", help=f"Choose the corpus from {corpus_module.__all__}"
 )
 @click.option("--cache", type=click.Path(), default=".cache", help="Cache location")
-def main(pattern, exact, length, limit, corpse, cache):
-    all_words = corpse_module.__dict__[corpse].read_words(cache)
+def main(pattern, exact, length, limit, corpus, cache):
+    all_words = corpus_module.__dict__[corpus].read_words(cache)
 
     for i, word in enumerate(search(exact)(all_words, pattern, length)):
         if limit <= 0 or i < limit:
