@@ -24,7 +24,7 @@ def _write_meta(data):
 
 
 __name__ = "word_finder"
-__version__ = f"0.1.0{_get_version_suffix()}"
+__version__ = f"0.2.0{_get_version_suffix()}"
 
 setup(
     install_requires=[

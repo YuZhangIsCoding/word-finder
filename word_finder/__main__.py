@@ -85,8 +85,27 @@ def search(exact: bool) -> Callable[[Iterator[str], str, int], Iterator[str]]:
     help=f"Choose the corpus from {corpus_module.__all__}",
 )
 @click.option("--cache", type=click.Path(), default=".cache", help="Cache location")
-def main(pattern, exact, length, limit, corpus, cache):
-    all_words = corpus_module.__dict__[corpus].read_words(cache)
+@click.option("--cache-file", type=click.Path(), help="Cached file name")
+@click.option(
+    "--clear",
+    type=bool,
+    is_flag=True,
+    default=False,
+    help="Clear the previous cached file",
+)
+@click.option(
+    "--url",
+    type=str,
+    default="http://www.mieliestronk.com/corncob_lowercase.txt",
+    help="Url to the text corpus",
+)
+def main(pattern, exact, length, limit, corpus, cache, cache_file, clear, url):
+    all_words = corpus_module.__dict__[corpus].read_words(
+        cache=cache,
+        cache_file=cache_file,
+        clear=clear,
+        url=url,
+    )
 
     for i, word in enumerate(search(exact)(all_words, pattern, length)):
         if limit <= 0 or i < limit:
