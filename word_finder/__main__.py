@@ -2,7 +2,7 @@
 import functools
 import re
 from collections import Counter
-from typing import Callable, Iterable, Iterator
+from typing import Callable, Iterable, Iterator, Set
 
 import click
 
@@ -14,11 +14,13 @@ from .__init__ import __version__
 LOGGER = get_logger(__name__)
 
 
-def search(exact: bool) -> Callable[[Iterator[str], str, int], Iterator[str]]:
+def search(exact: bool) -> Callable[[Iterator[str], str, int, Set], Iterator[str]]:
     """Search the words with given pattern"""
 
     @functools.wraps(search)
-    def exact_search(words: Iterable[str], pattern: str, length: int) -> Iterator[str]:
+    def exact_search(
+        words: Iterable[str], pattern: str, length: int, exclude_set: Set[str]
+    ) -> Iterator[str]:
         """The word has to match the letter at the exact position"""
         if 0 < length < len(pattern):
             raise ValueError(
@@ -35,6 +37,8 @@ def search(exact: bool) -> Callable[[Iterator[str], str, int], Iterator[str]]:
         for word in words:
             if 0 < length != len(word):
                 continue
+            if set(word) & exclude_set:
+                continue
             if all(
                 idx < len(word) and pattern_lower[idx] == word[idx]
                 for idx in pattern_indices
@@ -42,7 +46,9 @@ def search(exact: bool) -> Callable[[Iterator[str], str, int], Iterator[str]]:
                 yield word
 
     @functools.wraps(search)
-    def simple_search(words: Iterable, pattern: str, length: int) -> Iterator[str]:
+    def simple_search(
+        words: Iterable[str], pattern: str, length: int, exclude_set: Set[str]
+    ) -> Iterator[str]:
         """The word has all of the letters in the given pattern"""
         pattern_counter = Counter(
             letter for letter in pattern.lower() if letter.isalpha()
@@ -55,6 +61,8 @@ def search(exact: bool) -> Callable[[Iterator[str], str, int], Iterator[str]]:
             if 0 < length != len(word):
                 continue
             word_counter = Counter(word)
+            if word_counter.keys() & exclude_set:
+                continue
             for letter, count in pattern_counter.items():
                 if count > word_counter[letter]:
                     break
@@ -99,7 +107,8 @@ def search(exact: bool) -> Callable[[Iterator[str], str, int], Iterator[str]]:
     default="http://www.mieliestronk.com/corncob_lowercase.txt",
     help="Url to the text corpus",
 )
-def main(pattern, exact, length, limit, corpus, cache, cache_file, clear, url):
+@click.option("-e", "--exclude", type=str, help="The letter(s) to exclude")
+def main(pattern, exact, length, limit, corpus, cache, cache_file, clear, url, exclude):
     all_words = corpus_module.__dict__[corpus].read_words(
         cache=cache,
         cache_file=cache_file,
@@ -107,9 +116,12 @@ def main(pattern, exact, length, limit, corpus, cache, cache_file, clear, url):
         url=url,
     )
 
-    for i, word in enumerate(search(exact)(all_words, pattern, length)):
-        if limit <= 0 or i < limit:
-            LOGGER.info(f"Candidate {i+1}: {word}")
+    exclude_set = set(letter.lower() for letter in exclude or [] if letter.isalpha())
+
+    for i, word in enumerate(search(exact)(all_words, pattern, length, exclude_set)):
+        if 0 <= limit <= i:
+            break
+        LOGGER.info(f"Candidate {i+1}: {word}")
 
 
 if __name__ == "__main__":

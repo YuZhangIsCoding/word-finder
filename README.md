@@ -31,6 +31,7 @@ Options:
   --cache-file PATH     Cached file name
   --clear               Clear the previous cached file
   --url TEXT            Url to the text corpus
+  -e, --exclude TEXT    The letter(s) to exclude
   --help                Show this message and exit.
 
 ```
